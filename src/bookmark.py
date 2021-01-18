@@ -5,7 +5,7 @@ import sys
 class Bookmark:
     hatena_id = ""
     def __init__(self, hatena_id: str) :
-        self.hatena_id = hatena_id
+        self.hatena_id = hatena_id# kesu
 
     # 公開しているブックマークの数を求める
     def count_bookmark(self) -> int:
@@ -32,9 +32,9 @@ class Bookmark:
                 titles.append(entry['title'])
         return titles
 
-    def get_hotentry(self, category: str) -> tuple[str]:
+    def get_hotentry(self, category: str) -> list[dict[str, str]]:
         d = feedparser.parse('https://b.hatena.ne.jp/hotentry/{}.rss'.format(category))
         entries = []
         for entry in d['entries']:
-            entries.append((entry['link'], entry['title']))
+            entries.append(dict(link=entry['link'], title=entry['title']))
         return entries
