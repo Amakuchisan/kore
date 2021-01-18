@@ -1,3 +1,4 @@
 .fonts/*
 images/*.png
 !.gitkeep
+__pycache__
