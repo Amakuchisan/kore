@@ -31,3 +31,10 @@ class Bookmark:
             for entry in entries:
                 titles.append(entry['title'])
         return titles
+
+    def get_hotentry(self, category: str) -> tuple[str]:
+        d = feedparser.parse('https://b.hatena.ne.jp/hotentry/{}.rss'.format(category))
+        entries = []
+        for entry in d['entries']:
+            entries.append((entry['link'], entry['title']))
+        return entries
