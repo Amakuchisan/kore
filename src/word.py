@@ -42,3 +42,16 @@ def get_body_from_URL(url: str) -> str:
     if soup.find('article') is None:
         return soup.get_text()
     return '\n'.join([c.get_text() for c in soup.find_all('article')])
+
+def create_dict_from_list(word_list: list[str]):
+    dict = {}
+    for word in word_list:
+        if word not in dict:
+            dict.setdefault(word, 1)
+        else:
+            dict[word] += 1
+    return dict
+
+def get_n_dict(dic: list[dict[str, int]], n: int):
+    n_dic = sorted(dic.items(), key=lambda x:x[1], reverse=True)
+    return n_dic[:n]

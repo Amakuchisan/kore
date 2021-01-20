@@ -9,12 +9,8 @@ services:
       context: .
     ports:
       - "5000:5000"
-    environment:
-      HATENAID: sample
     depends_on:
       - db
-    volumes:
-      - $(pwd)/images:/work/images
 
   db:
     container_name: mysql-container
@@ -30,3 +26,4 @@ services:
       retries: 10 
     volumes:
       - ./db:/docker-entrypoint-initdb.d
+      - ./my.cnf:/etc/mysql/conf.d/my.cnf

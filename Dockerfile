@@ -1,14 +1,10 @@
 FROM python:3.9-slim
 
 WORKDIR /work
-COPY requirements.txt .
-
-RUN pip install -U pip \
-    && pip install -r requirements.txt
 
 # mecabとmecab-ipadic-NEologdの導入
 RUN apt-get update \
-    && apt-get install -y mecab libmecab-dev mecab-ipadic-utf8 git make curl xz-utils file sudo
+    && apt-get install -y mecab libmecab-dev mecab-ipadic-utf8 git gcc make curl xz-utils file sudo default-libmysqlclient-dev
 
 RUN git clone --depth 1 https://github.com/neologd/mecab-ipadic-neologd.git \
     && cd mecab-ipadic-neologd \
@@ -30,9 +26,19 @@ RUN /usr/lib/mecab/mecab-dict-index \
     -f utf-8 -t utf-8 /work/userdic/myDic.csv \
     && echo userdic = /work/userdic/myDic.dic >> /usr/local/etc/mecabrc
 
+COPY requirements.txt .
+
+RUN pip install -U pip \
+    && pip install -r requirements.txt
+
 COPY src src
+COPY templates templates
 
-# RUN pip install beautifulsoup4
+# RUN pip install mysql-python
+RUN sed -i -e 's/CipherString = DEFAULT@SECLEVEL=2/# CipherString = DEFAULT@SECLEVEL=2/g' /etc/ssl/openssl.cnf
 
-CMD ["python", "src/main.py"]
+# CMD ["python", "src/web/server.py"]
+ENV FLASK_APP /work/src/web/app.py
+
+CMD ["flask", "run", "-h", "0.0.0.0"]
 # CMD ["pip", "freeze"]
