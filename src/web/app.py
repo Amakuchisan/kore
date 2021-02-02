@@ -33,7 +33,7 @@ hatena_id=""
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'GET':
-        entries = bookmark.get_hotentry(hatena_id, "it")
+        entries = sorted(bookmark.get_hotentry(hatena_id, "it"), key=lambda x: x['recommendation_score'], reverse=True)
         return render_template("index.html", hatena_id = hatena_id, entries = entries, image=image)
     
     elif request.method == 'POST':
