@@ -30,6 +30,10 @@ def strip_tags(html: str) -> str:
     p = r"(?<rec><(?:[^<>]+|(?&rec))*>)"
     return regex.sub(p, "", html)
 
+def strip_url(html: str) -> str:
+    p = r"(https?|ftp)(:\/\/[-_\.!~*\'()a-zA-Z0-9;\/?:\@&=\+$,%#]+)"
+    return regex.sub(p, "" , html)
+
 def w():
     with codecs.open('myfiler4.txt', 'w', 'utf-8') as f:
         url = 'https://cnaan.hatenablog.com/entry/2020/12/04/234523'
@@ -52,6 +56,6 @@ def create_dict_from_list(word_list: list[str]):
             dict[word] += 1
     return dict
 
-def get_n_dict(dic: list[dict[str, int]], n: int):
+def get_n_dict(dic: list[dict[str, int]], n: int) -> list[dict[str, int]]:
     n_dic = sorted(dic.items(), key=lambda x:x[1], reverse=True)
     return n_dic[:n]

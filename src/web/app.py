@@ -2,23 +2,11 @@ from base64 import b64encode
 from flask import Flask, render_template, request, redirect, url_for
 import io
 from PIL import Image
-import sys
-import sqlalchemy
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.schema import MetaData
-from sqlalchemy.sql import text
 
-sys.path.append('/work/src')
-from bookmark import Bookmark
+from util.bookmark import Bookmark
+from util import wc, word
 
-from setting import session
-import wc
-import word
-
-sys.path.append('/work/src/model')
-from user import *
-
+from db import user
 
 app = Flask(__name__, template_folder='/work/templates')
 
@@ -46,7 +34,7 @@ def id():
         global hatena_id
         global image
         hatena_id = request.form["user_id"]
-        img = find_wordcloud(hatena_id)
+        img = user.find_wordcloud(hatena_id)
         if (img is None):
             image = sample_image
         else:
@@ -68,25 +56,7 @@ def update_wordcloud():
     output = io.BytesIO()
     wc.create_wordcloud(word.get_noun(' '.join(titles))).save(output, format='PNG')
     image = b64encode(output.getvalue()).decode("utf-8")
-    save(b64encode(output.getvalue()))
-
-def save(image):
-    if find_wordcloud(hatena_id) is None:
-        user = User()
-        user.hatena_id = hatena_id
-        user.wordcloud = image
-        session.add(user)
-        session.commit()
-        return
-    user = session.query(User).filter(User.hatena_id==hatena_id).first()
-    user.wordcloud = image
-    session.commit()
-
-def find_wordcloud(hatena_id: str):
-    user = session.query(User.wordcloud).filter(User.hatena_id==hatena_id).first()
-    if user is not None:
-        return user.wordcloud
-    return None
+    user.save_img(hatena_id, b64encode(output.getvalue()))
 
 if __name__ == "__main__":
     app.run(debug=True)

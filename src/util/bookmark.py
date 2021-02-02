@@ -1,12 +1,11 @@
 import feedparser
 import re
 import sys
-import word
+import util.word
 
 class Bookmark:
     # 公開しているブックマークの数を求める
     def __init__(self):
-        self.titles = []
         self.allnoun = []
         self.dic = {}
         self.bodies = []
@@ -16,8 +15,9 @@ class Bookmark:
         self.entries = {}
 
     def init(self, hatena_id: str):
-        self.titles = self.get_title(hatena_id)
-        self.allnoun = word.get_noun(' '.join(self.titles))
+        self.calc_feature(hatena_id)
+        titles = ["りんご", "ごりら"]
+        self.allnoun = word.get_noun(' '.join(titles))
         self.dic = word.create_dict_from_list(self.allnoun)
         # self.dic = word.get_n_dict(d, len(d))
 
@@ -36,6 +36,26 @@ class Bookmark:
             print('Error: num is string', file=sys.stderr)
             return 0
         return int(num)
+
+    def calc_feature(self, hatena_id: str):
+        return
+        url_list = self.get_url(hatena_id)
+
+        for url in url_list:
+            html = word.get_body_from_URL(url)
+            noun = word.get_noun(' '.join(html))
+            dic_list = get_n_dict(noun, 3)
+
+            for dic in dic_list:
+                article = session.query
+
+
+
+            d = feedparser.parse('https://b.hatena.ne.jp/{}/rss?page={}'.format(hatena_id, i+1))
+            entries = d['entries']
+            for entry in entries:
+                titles.append(entry['title'])
+        return titles
 
     def get_title(self, hatena_id: str) -> list[str]:
         # 1ページに20件のデータがある。ページ数を求める

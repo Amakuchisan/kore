@@ -3,8 +3,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, BigInteger, TIMESTAMP
 from sqlalchemy.sql.expression import text
 from sqlalchemy.sql.functions import current_timestamp
-from setting import Base
-from setting import ENGINE
+from db.setting import Base
+from db.setting import ENGINE
 
 class User_Article(Base):
     """
