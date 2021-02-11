@@ -34,11 +34,8 @@ RUN pip install -U pip \
 COPY src src
 COPY templates templates
 
-# RUN pip install mysql-python
 RUN sed -i -e 's/CipherString = DEFAULT@SECLEVEL=2/# CipherString = DEFAULT@SECLEVEL=2/g' /etc/ssl/openssl.cnf
 
-# CMD ["python", "src/web/server.py"]
 ENV FLASK_APP /work/src/web/app.py
-
 CMD ["flask", "run", "-h", "0.0.0.0"]
 # CMD ["pip", "freeze"]

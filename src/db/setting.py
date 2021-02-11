@@ -5,7 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 # mysqlのDBの設定
 url = 'mysql+pymysql://kore:kore@db/kore?charset=utf8'
 
-DATABASE = 'mysql://%s:%s@%s/%s?charset=utf8' % (
+DATABASE = 'mysql://%s:%s@%s/%s?charset=utf8mb4' % (
     "kore",
     "kore",
     "db",
