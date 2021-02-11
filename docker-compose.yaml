@@ -5,6 +5,8 @@ services:
     container_name: kore-container
     tty: true
     stdin_open: true
+    environment:
+      TZ: Japan
     build:
       context: .
     ports:
