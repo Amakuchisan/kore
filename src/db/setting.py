@@ -13,15 +13,14 @@ DATABASE = 'mysql://%s:%s@%s/%s?charset=utf8mb4' % (
 )
 ENGINE = create_engine(
     DATABASE,
-    encoding = "utf-8",
-    echo=True # Trueだと実行のたびにSQLが出力される
+    # echo=True  # Trueだと実行のたびにSQLが出力される
 )
 
 session = scoped_session(
     sessionmaker(
-        autocommit = False,
-        autoflush = False,
-        bind = ENGINE
+        autocommit=False,
+        autoflush=False,
+        bind=ENGINE
     )
 )
 
