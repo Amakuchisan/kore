@@ -32,25 +32,22 @@ class Bookmark:
             return 0
         return math.ceil(int(num)/20)
 
+    # 特徴量を計算し、DBに保存
     def calc_feature(self, hatena_id: str):
-        return
         url_list = self.get_url(hatena_id)
-
         for url in url_list:
-            html = word.get_body_from_URL(url)
-            noun = word.get_noun(' '.join(html))
-            dic_list = get_n_dict(noun, 3)
+            if(article.find_article_by_url(url) is None):
+                article.create(url)
+                user_article.create(hatena_id, url)
 
-            for dic in dic_list:
-                article = session.query
-
-
-
-            d = feedparser.parse('https://b.hatena.ne.jp/{}/rss?page={}'.format(hatena_id, i+1))
-            entries = d['entries']
-            for entry in entries:
-                titles.append(entry['title'])
-        return titles
+                html = wd.get_body_from_URL(url)
+                noun = wd.get_noun(html)
+                # 登場回数が多い順に3件取得
+                dic_list = wd.get_n_dict(wd.create_dict_from_list(noun), 3)
+                for dic in dic_list:
+                    if(word.find_name(dic[0]) is None):
+                        word.create(dic[0])
+                    article_word.create(dic[0], dic[1], url)
 
     def get_title(self, hatena_id: str) -> list[str]:
         # 1ページに20件のデータがある。ページ数を求める
