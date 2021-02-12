@@ -37,7 +37,7 @@ def strip_tags(html: str) -> str:
 
 def strip_url(html: str) -> str:
     p = r"(https?|ftp)(:\/\/[-_\.!~*\'()a-zA-Z0-9;\/?:\@&=\+$,%#]+)"
-    return regex.sub(p, "" , html)
+    return regex.sub(p, '', html)
 
 
 def get_body_from_URL(url: str) -> str:
