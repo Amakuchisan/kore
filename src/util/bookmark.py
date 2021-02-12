@@ -22,8 +22,9 @@ class Bookmark:
     def init(self, hatena_id: str):
         self.calc_feature(hatena_id)
 
-    def count_bookmark_page(self, hatena_id: str) -> int:
-        d = feedparser.parse('https://b.hatena.ne.jp/{}/rss'.format(hatena_id))
+    def count_bookmark_page(self, hatena_id: str, option: str = '') -> int:
+        d = feedparser.parse(
+            'https://b.hatena.ne.jp/{}/rss{}'.format(hatena_id, option))
         content = d['feed']['subtitle']  # 'Userのはてなブックマーク (num)'
         match = re.search(r"(はてなブックマーク \()(.*?)\)", content)
         num = match.group(2).replace(',', '')  # 公開しているブックマーク数
