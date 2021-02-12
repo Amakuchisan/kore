@@ -40,6 +40,11 @@ def strip_url(html: str) -> str:
     return regex.sub(p, '', html)
 
 
+def strip_symbol(html: str) -> str:
+    p = r"[!-/:-@[-`{-~ʹ·]"
+    return regex.sub(p, ' ', html)
+
+
 def get_body_from_URL(url: str) -> str:
     err_code = [500, 502, 503]
     try:
