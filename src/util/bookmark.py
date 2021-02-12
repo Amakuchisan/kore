@@ -1,7 +1,12 @@
 import feedparser
+import math
+import os
 import re
 import sys
-import util.word
+
+from db import word, article, user_article, article_word
+from util import word as wd
+
 
 class Bookmark:
     # 公開しているブックマークの数を求める
@@ -16,26 +21,16 @@ class Bookmark:
 
     def init(self, hatena_id: str):
         self.calc_feature(hatena_id)
-        titles = ["りんご", "ごりら"]
-        self.allnoun = word.get_noun(' '.join(titles))
-        self.dic = word.create_dict_from_list(self.allnoun)
-        # self.dic = word.get_n_dict(d, len(d))
 
-        # for link in self.get_url(hatena_id):
-            # self.bodies.append(word.get_body_from_URL(link))
-
-        # self.bodynoun = word.get_noun(' '.join(self.bodies))
-        # self.dic = word.create_dict_from_list(self.bodynoun)
-
-    def count_bookmark(self, hatena_id: str) -> int:
+    def count_bookmark_page(self, hatena_id: str) -> int:
         d = feedparser.parse('https://b.hatena.ne.jp/{}/rss'.format(hatena_id))
-        content = d['feed']['subtitle'] # 'Userのはてなブックマーク (num)'
+        content = d['feed']['subtitle']  # 'Userのはてなブックマーク (num)'
         match = re.search(r"(はてなブックマーク \()(.*?)\)", content)
-        num = match.group(2).replace(',', '') # 公開しているブックマーク数
+        num = match.group(2).replace(',', '')  # 公開しているブックマーク数
         if not num.isdecimal():
             print('Error: num is string', file=sys.stderr)
             return 0
-        return int(num)
+        return math.ceil(int(num)/20)
 
     def calc_feature(self, hatena_id: str):
         return
