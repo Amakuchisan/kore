@@ -37,12 +37,14 @@ def id():
         global hatena_id
         global image
         hatena_id = request.form["user_id"]
+        if (user.find_id(hatena_id) is None):
+            user.create(hatena_id)
         img = user.find_wordcloud(hatena_id)
         if (img is None):
             image = sample_image
         else:
             image = img.decode("utf-8")
-
+        bookmark.count_osusume(hatena_id)
     return redirect(url_for('index'))
 
 
@@ -50,7 +52,7 @@ def id():
 def recommended():
     if request.method == 'POST':
         bookmark.init(hatena_id)
-        bookmark.get_osusume(hatena_id)
+        bookmark.count_osusume(hatena_id)
     return redirect(url_for('index'))
 
 

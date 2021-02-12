@@ -37,7 +37,12 @@ def strip_tags(html: str) -> str:
 
 def strip_url(html: str) -> str:
     p = r"(https?|ftp)(:\/\/[-_\.!~*\'()a-zA-Z0-9;\/?:\@&=\+$,%#]+)"
-    return regex.sub(p, "" , html)
+    return regex.sub(p, '', html)
+
+
+def strip_symbol(html: str) -> str:
+    p = r"[!-/:-@[-`{-~ʹ·]"
+    return regex.sub(p, ' ', html)
 
 
 def get_body_from_URL(url: str) -> str:
@@ -67,7 +72,7 @@ def get_retry(url, retry_times, errs):
         return r
 
 
-def create_dict_from_list(word_list: list[str]):
+def create_dict_from_list(word_list: list[str]) -> dict[str, int]:
     dict = {}
     for word in word_list:
         if word not in dict:
