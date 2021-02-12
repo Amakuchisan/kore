@@ -1,7 +1,7 @@
-# from bookmark import Bookmark
-# import os
-# import wc
-# import word
+from util.bookmark import Bookmark
+import os
+from util import word, wc
+
 
 # def main():
 #     # hatena_id = os.environ['HATENAID']
@@ -12,6 +12,7 @@
 #     print(a)
 
 #     # wc.create_wordcloud(word.get_noun(' '.join(titles)))
+
 
 # if __name__ == "__main__":
 #     main()
