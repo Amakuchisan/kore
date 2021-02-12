@@ -1,8 +1,10 @@
 from bs4 import BeautifulSoup
 import MeCab
+import neologdn
 import regex
 import requests
-import codecs
+
+from time import sleep
 
 # 名詞を取得
 
@@ -39,11 +41,31 @@ def strip_url(html: str) -> str:
 
 
 def get_body_from_URL(url: str) -> str:
-    res = requests.get(url)
-    soup = BeautifulSoup(res.text, 'html.parser')
+    err_code = [500, 502, 503]
+    try:
+        res = get_retry(url, 3, err_code)
+        if res.status_code in err_code:
+            return ''
+    except:
+        print(url, "error")
+        return ''
+    soup = BeautifulSoup(res.content, 'html.parser')
     if soup.find('article') is None:
-        return soup.get_text()
-    return '\n'.join([c.get_text() for c in soup.find_all('article')])
+        html = soup.get_text()
+    else:
+        html = '\n'.join([c.get_text() for c in soup.find_all('article')])
+    return strip_symbol(strip_tags(strip_url(neologdn.normalize(html))))
+
+
+def get_retry(url, retry_times, errs):
+    for t in range(retry_times + 1):
+        r = requests.get(url, verify=False)
+        if t < retry_times:
+            if r.status_code in errs:
+                sleep(2)
+                continue
+        return r
+
 
 def create_dict_from_list(word_list: list[str]):
     dict = {}
