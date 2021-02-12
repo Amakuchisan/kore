@@ -67,7 +67,7 @@ def get_retry(url, retry_times, errs):
         return r
 
 
-def create_dict_from_list(word_list: list[str]):
+def create_dict_from_list(word_list: list[str]) -> dict[str, int]:
     dict = {}
     for word in word_list:
         if word not in dict:
