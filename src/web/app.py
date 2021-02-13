@@ -48,12 +48,31 @@ def id():
     return redirect(url_for('index'))
 
 
+@app.route('/learn', methods=['POST'])
+def learn():
+    if request.method == 'POST':
+        bookmark.init(hatena_id)
+    return redirect(url_for('index'))
+
+
 @app.route('/recommended', methods=['POST'])
 def recommended():
     if request.method == 'POST':
-        bookmark.init(hatena_id)
         bookmark.count_osusume(hatena_id)
     return redirect(url_for('index'))
+
+
+@app.route('/atodeyomu', methods=['GET'])
+def atodeyomu():
+    if request.method == 'GET':
+        entries = bookmark.get_suggestion(hatena_id, "tag=あとで読む&")
+        print(entries)
+        print(entries[0])
+        print(entries[0]['score'])
+        if not entries[0]['score'] == "データがありません":
+            entries = sorted(entries,
+                            key=lambda x: x['score'], reverse=True)
+        return render_template("atodeyomu.html", hatena_id=hatena_id, atodeyomu_entries=entries)
 
 
 def update_wordcloud():

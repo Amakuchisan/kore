@@ -22,13 +22,8 @@ def find_id(hatena_id: str):
     return None
 
 def save_img(hatena_id: str, image):
-    if find_wordcloud(hatena_id) is None:
-        user = User()
-        user.hatena_id = hatena_id
-        user.wordcloud = image
-        session.add(user)
-        session.commit()
-        return
+    if find_id(hatena_id) is None:
+        create(hatena_id)
     user = session.query(User).filter(User.hatena_id == hatena_id).first()
     user.wordcloud = image
     session.commit()

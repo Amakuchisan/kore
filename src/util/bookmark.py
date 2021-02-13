@@ -2,6 +2,7 @@ import feedparser
 import math
 import os
 import re
+import requests
 import sys
 
 from db import word, article, user_article, article_word
@@ -22,8 +23,10 @@ class Bookmark:
     def init(self, hatena_id: str):
         self.calc_feature(hatena_id)
 
-    def count_bookmark_page(self, hatena_id: str) -> int:
-        d = feedparser.parse('https://b.hatena.ne.jp/{}/rss'.format(hatena_id))
+    def count_bookmark_page(self, hatena_id: str, option: str = '') -> int:
+        data = requests.get(
+            'https://b.hatena.ne.jp/{}/bookmark.rss?{}'.format(hatena_id, option))
+        d = feedparser.parse(data.text)
         content = d['feed']['subtitle']  # 'Userのはてなブックマーク (num)'
         match = re.search(r"(はてなブックマーク \()(.*?)\)", content)
         num = match.group(2).replace(',', '')  # 公開しているブックマーク数
@@ -49,11 +52,12 @@ class Bookmark:
                         word.create(dic[0])
                     article_word.create(dic[0], dic[1], url)
 
-    def get_title(self, hatena_id: str) -> list[str]:
+    # optionには追加のクエリパラメータを記述
+    def get_title(self, hatena_id: str, option: str = '') -> list[str]:
         # 1ページに20件のデータがある。ページ数を求める
         if hatena_id == "":
             return []
-        max_page = self.count_bookmark_page(hatena_id)
+        max_page = self.count_bookmark_page(hatena_id, option)
 
         if max_page > 10:
             # 最大200件まで取得するようにする
@@ -62,24 +66,31 @@ class Bookmark:
         titles = []
 
         for i in range(max_page):
-            d = feedparser.parse(
-                'https://b.hatena.ne.jp/{}/rss?page={}'.format(hatena_id, i+1))
+            data = requests.get(
+                'https://b.hatena.ne.jp/{}/bookmark.rss?{}page={}'.format(hatena_id, option, i+1))
+            d = feedparser.parse(data.text)
             entries = d['entries']
             for entry in entries:
                 titles.append(entry['title'])
         return titles
 
-    def get_url(self, hatena_id: str) -> list[str]:
+    # optionには追加のクエリパラメータを記述
+    def get_url(self, hatena_id: str, option: str = '') -> list[str]:
         # 1ページに20件のデータがある。ページ数を求める
         if hatena_id == "":
             return []
-        max_page = self.count_bookmark_page(hatena_id)
+        max_page = self.count_bookmark_page(hatena_id, option)
+
+        if max_page > 10:
+            # 最大200件まで取得するようにする
+            max_page = 10
 
         links = []
 
         for i in range(max_page):
-            d = feedparser.parse(
-                'https://b.hatena.ne.jp/{}/rss?page={}'.format(hatena_id, i+1))
+            data = requests.get(
+                'https://b.hatena.ne.jp/{}/bookmark.rss?{}page={}'.format(hatena_id, option, i+1))
+            d = feedparser.parse(data.text)
             entries = d['entries']
             for entry in entries:
                 links.append(entry['link'])
@@ -105,7 +116,7 @@ class Bookmark:
             'https://b.hatena.ne.jp/hotentry/{}.rss'.format(category))
         self.entries = d['entries']
 
-    def get_hotentry(self, hatena_id, category: str) -> list[dict[str, str]]:
+    def get_hotentry(self, hatena_id: str, category: str) -> list[dict[str, str]]:
         entries = []
         osusume = "未計算"
         self.update_hotentry(category)
@@ -115,3 +126,45 @@ class Bookmark:
             entries.append(
                 dict(link=entry['link'], title=entry['title'], recommendation_score=osusume))
         return entries
+
+    def get_user_entries(self, hatena_id: str, option: str = '') -> list[feedparser.util.FeedParserDict]:
+        # 1ページに20件のデータがある。ページ数を求める
+        if hatena_id == "":
+            return []
+        max_page = self.count_bookmark_page(hatena_id, option)
+
+        if max_page > 10:
+            # 最大200件まで取得するようにする
+            max_page = 10
+        entries = []
+        for i in range(max_page):
+            data = requests.get(
+                'https://b.hatena.ne.jp/{}/bookmark.rss?{}page={}'.format(hatena_id, option, i+1))
+            d = feedparser.parse(data.text)
+            entries += d['entries']
+        return entries
+
+    def get_suggestion(self, hatena_id: str, option: str) -> list[dict[str, str]]:
+        if hatena_id == "":
+            return ""
+        dic = {}
+        data = []
+
+        entries = self.get_user_entries(hatena_id, option)
+
+        w = word.find_word(hatena_id)
+        if len(w) == 0:
+            # 検索結果が0だったら何もしない
+            print("no data")
+            return [dict(link="", title="タイトル", score="データがありません")]
+        for entry in entries:
+            noun = wd.get_noun(entry['title'])
+            dic.setdefault(entry['link'], 0)
+            for n in noun:
+                if n in w:
+                    dic[entry['link']] += w[n]
+
+            data.append(
+                dict(link=entry['link'], title=entry['title'], score=dic[entry['link']]))
+
+        return data
