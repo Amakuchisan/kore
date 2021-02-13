@@ -2,6 +2,7 @@ import feedparser
 import math
 import os
 import re
+import requests
 import sys
 
 from db import word, article, user_article, article_word
@@ -23,8 +24,9 @@ class Bookmark:
         self.calc_feature(hatena_id)
 
     def count_bookmark_page(self, hatena_id: str, option: str = '') -> int:
-        d = feedparser.parse(
-            'https://b.hatena.ne.jp/{}/rss{}'.format(hatena_id, option))
+        data = requests.get(
+            'https://b.hatena.ne.jp/{}/bookmark.rss?{}'.format(hatena_id, option))
+        d = feedparser.parse(data.text)
         content = d['feed']['subtitle']  # 'Userのはてなブックマーク (num)'
         match = re.search(r"(はてなブックマーク \()(.*?)\)", content)
         num = match.group(2).replace(',', '')  # 公開しているブックマーク数
@@ -63,8 +65,9 @@ class Bookmark:
         titles = []
 
         for i in range(max_page):
-            d = feedparser.parse(
-                'https://b.hatena.ne.jp/{}/rss?page={}'.format(hatena_id, i+1))
+            data = requests.get(
+                'https://b.hatena.ne.jp/{}/bookmark.rss?{}page={}'.format(hatena_id, option, i+1))
+            d = feedparser.parse(data.text)
             entries = d['entries']
             for entry in entries:
                 titles.append(entry['title'])
@@ -79,8 +82,9 @@ class Bookmark:
         links = []
 
         for i in range(max_page):
-            d = feedparser.parse(
-                'https://b.hatena.ne.jp/{}/rss?page={}'.format(hatena_id, i+1))
+            data = requests.get(
+                'https://b.hatena.ne.jp/{}/bookmark.rss?{}page={}'.format(hatena_id, option, i+1))
+            d = feedparser.parse(data.text)
             entries = d['entries']
             for entry in entries:
                 links.append(entry['link'])
