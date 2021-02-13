@@ -79,7 +79,7 @@ class Bookmark:
         # 1ページに20件のデータがある。ページ数を求める
         if hatena_id == "":
             return []
-        max_page = self.count_bookmark_page(hatena_id)
+        max_page = self.count_bookmark_page(hatena_id, option)
 
         links = []
 
