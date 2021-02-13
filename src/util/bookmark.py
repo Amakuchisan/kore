@@ -52,11 +52,12 @@ class Bookmark:
                         word.create(dic[0])
                     article_word.create(dic[0], dic[1], url)
 
-    def get_title(self, hatena_id: str) -> list[str]:
+    # optionには追加のクエリパラメータを記述
+    def get_title(self, hatena_id: str, option: str = '') -> list[str]:
         # 1ページに20件のデータがある。ページ数を求める
         if hatena_id == "":
             return []
-        max_page = self.count_bookmark_page(hatena_id)
+        max_page = self.count_bookmark_page(hatena_id, option)
 
         if max_page > 10:
             # 最大200件まで取得するようにする
@@ -73,7 +74,8 @@ class Bookmark:
                 titles.append(entry['title'])
         return titles
 
-    def get_url(self, hatena_id: str) -> list[str]:
+    # optionには追加のクエリパラメータを記述
+    def get_url(self, hatena_id: str, option: str = '') -> list[str]:
         # 1ページに20件のデータがある。ページ数を求める
         if hatena_id == "":
             return []
@@ -110,7 +112,7 @@ class Bookmark:
             'https://b.hatena.ne.jp/hotentry/{}.rss'.format(category))
         self.entries = d['entries']
 
-    def get_hotentry(self, hatena_id, category: str) -> list[dict[str, str]]:
+    def get_hotentry(self, hatena_id: str, category: str) -> list[dict[str, str]]:
         entries = []
         osusume = "未計算"
         self.update_hotentry(category)
