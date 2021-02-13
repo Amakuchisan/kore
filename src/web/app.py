@@ -48,10 +48,16 @@ def id():
     return redirect(url_for('index'))
 
 
+@app.route('/learn', methods=['POST'])
+def learn():
+    if request.method == 'POST':
+        bookmark.init(hatena_id)
+    return redirect(url_for('index'))
+
+
 @app.route('/recommended', methods=['POST'])
 def recommended():
     if request.method == 'POST':
-        bookmark.init(hatena_id)
         bookmark.count_osusume(hatena_id)
     return redirect(url_for('index'))
 
