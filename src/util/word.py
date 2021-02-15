@@ -26,7 +26,7 @@ def get_noun(text: str) -> list[str]:
             if len(set(["副詞可能", "数", "非自立", "代名詞", "接尾"]) & set(node.feature.split(",")[1:4])) == 0:
                 word_list.append(node.surface)
         node = node.next
-    return word_list
+    return list(map(lambda s: s.lower(), word_list))
 
 
 def strip_tags(html: str) -> str:
