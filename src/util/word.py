@@ -30,50 +30,49 @@ def get_noun(text: str) -> list[str]:
 
 
 def strip_tags(html: str) -> str:
-    html = html.replace("&lt;", '<').replace("&gt;", '>')
-    p = r"(?<rec><(?:[^<>]+|(?&rec))*>)"
+    html=html.replace("&lt;", '<').replace("&gt;", '>')
+    p=r"(?<rec><(?:[^<>]+|(?&rec))*>)"
     return regex.sub(p, '', html)
 
 
 def strip_url(html: str) -> str:
-    p = r"(https?|ftp)(:\/\/[-_\.!~*\'()a-zA-Z0-9;\/?:\@&=\+$,%#]+)"
+    p=r"(https?|ftp)(:\/\/[-_\.!~*\'()a-zA-Z0-9;\/?:\@&=\+$,%#]+)"
     return regex.sub(p, '', html)
 
 
 def strip_symbol(html: str) -> str:
-    p = r"[!-/:-@[-`{-~ʹ·]"
+    p=r"[!-/:-@[-`{-~ʹ·]"
     return regex.sub(p, ' ', html)
 
 
 def get_body_from_URL(url: str) -> str:
-    err_code = [500, 502, 503]
+    err_code=[500, 502, 503]
     try:
-        res = get_retry(url, 3, err_code)
+        res=get_retry(url, 3, err_code)
         if res.status_code in err_code:
             return ''
     except:
         print(url, "error")
         return ''
-    soup = BeautifulSoup(res.content, 'html.parser')
+    soup=BeautifulSoup(res.content, 'html.parser')
     if soup.find('article') is None:
-        html = soup.get_text()
+        html=soup.get_text()
     else:
-        html = '\n'.join([c.get_text() for c in soup.find_all('article')])
+        html='\n'.join([c.get_text() for c in soup.find_all('article')])
     return strip_symbol(strip_tags(strip_url(neologdn.normalize(html))))
 
 
 def get_retry(url, retry_times, errs):
     for t in range(retry_times + 1):
-        r = requests.get(url, verify=False)
+        r=requests.get(url, verify=False)
         if t < retry_times:
             if r.status_code in errs:
                 sleep(2)
                 continue
         return r
 
-
 def create_dict_from_list(word_list: list[str]) -> dict[str, int]:
-    dict = {}
+    dict={}
     for word in word_list:
         if word not in dict:
             dict.setdefault(word, 1)
@@ -83,5 +82,5 @@ def create_dict_from_list(word_list: list[str]) -> dict[str, int]:
 
 
 def get_n_dict(dic: dict[str, int], n: int) -> list[tuple[str, int]]:
-    n_dic = sorted(dic.items(), key=lambda x: x[1], reverse=True)
+    n_dic=sorted(dic.items(), key=lambda x: x[1], reverse=True)
     return n_dic[:n]
