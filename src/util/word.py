@@ -3,8 +3,9 @@ import MeCab
 import neologdn
 import regex
 import requests
-
 from time import sleep
+from urllib.robotparser import RobotFileParser
+from urllib.parse import urlparse
 
 # 名詞を取得
 
@@ -46,7 +47,10 @@ def strip_symbol(html: str) -> str:
 
 
 def get_body_from_URL(url: str) -> str:
-    err_code=[500, 502, 503]
+    err_code = [500, 502, 503]
+    if not allow_robots_txt(url):
+        print(url, "not allowed to access")
+        return ""
     try:
         res = get_retry(url, 3, err_code)
         if res.status_code in err_code:
@@ -60,6 +64,18 @@ def get_body_from_URL(url: str) -> str:
     else:
         html = '\n'.join([c.get_text() for c in soup.find_all('article')])
     return strip_symbol(strip_tags(strip_url(neologdn.normalize(html))))
+
+
+def allow_robots_txt(url: str):
+    rp = RobotFileParser()
+    try:
+        rp.set_url("{0.scheme}://{0.netloc}/robots.txt".format(urlparse(url)))
+        rp.read()
+        if rp.can_fetch("*", url):
+            return True
+    except Exception as e:
+        print(url, e)
+    return False
 
 
 def get_retry(url, retry_times, errs):
