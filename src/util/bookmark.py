@@ -40,10 +40,12 @@ class Bookmark:
         url_list = self.get_url(hatena_id)
         for url in url_list:
             if(article.find_article_by_url(url) is None):
+                html = wd.get_body_from_URL(url)
+                if not html :
+                    continue # htmlが空だったら、DBに追加しない
                 article.create(url)
                 user_article.create(hatena_id, url)
 
-                html = wd.get_body_from_URL(url)
                 noun = wd.get_noun(html)
                 # 登場回数が多い順に3件取得
                 dic_list = wd.get_n_dict(wd.create_dict_from_list(noun), 3)
